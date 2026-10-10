@@ -53,10 +53,14 @@ run the helper's `logout` command or delete them yourself.
 
 ## How these formulae work
 
-- **Built from source.** Homebrew downloads the tagged source and builds it with
-  Go, which it installs as a build dependency (`brew autoremove` removes it again
-  if nothing else needs it). The first install takes a little longer, but no
-  prebuilt binary is involved, so macOS Gatekeeper does not quarantine it.
+- **Prebuilt bottles.** Each release ships Homebrew bottles for macOS (Apple
+  silicon and Intel) and Linux (x86_64 and arm64), built and tested on GitHub
+  Actions. The macOS bottles are built on macOS 15 and Homebrew uses them on 15,
+  26 and 27. You don't need Xcode, the Command Line Tools or Go to install.
+- **Source build as a fallback.** On a platform without a bottle, Homebrew builds
+  from the tagged source with Go. That needs Command Line Tools that match your
+  macOS. Bottles are formula installs, so macOS Gatekeeper doesn't quarantine
+  them either way.
 - **Pinned and checksummed.** Each formula points at one release tag with its
   SHA-256.
 - **Updated automatically.** When a project tags a release (`v*`), its release
@@ -68,7 +72,8 @@ run the helper's `logout` command or delete them yourself.
 | Symptom | Fix |
 | --- | --- |
 | `Error: No available formula` | Run `brew update`. If the release is brand new, wait until its workflow has finished. |
-| Build fails on `go` | Run `brew update && brew upgrade go`; the helpers need a current Go toolchain to build. |
+| `Your Command Line Tools (CLT) does not support macOS …` | Homebrew is building from source because no bottle matched. Run `brew update` to get the formula with bottles. If it persists, update the Command Line Tools from Software Update, or reinstall them with `sudo rm -rf /Library/Developer/CommandLineTools && xcode-select --install`. |
+| Build fails on `go` | Only happens on a source build. Run `brew update && brew upgrade go`. |
 | Old version after upgrading | Run `brew update` first so Homebrew fetches the latest formulae from the tap. |
 | `ccauth: command not found` | Make sure Homebrew's `bin` is on your `PATH` (`brew --prefix`/bin). |
 
@@ -88,11 +93,19 @@ source of truth is the template in each project:
 | `Formula/cxauth.rb` | `codex-auth-helper/packaging/homebrew/cxauth.rb` | that repo's `release.yml` → `homebrew` job |
 | `Formula/gbauth.rb` | `grok-build-auth-helper/packaging/homebrew/gbauth.rb` | that repo's `release.yml` → `homebrew` job |
 
-On a tag push, the `homebrew` job:
+On a tag push, the release workflow:
 
-1. downloads the tag's source archive and computes its SHA-256;
-2. fills `__VERSION__` and `__SHA256__` into the template;
-3. commits `Formula/<name>.rb` here as `github-actions[bot]`.
+1. **`bottles`** (matrix: `macos-15`, `macos-15-intel`, `ubuntu-24.04`,
+   `ubuntu-24.04-arm`): renders the formula into a local `palenaai/tap`, runs
+   `brew install --build-bottle`, `brew test` and `brew bottle`, and attaches the
+   bottle to the GitHub release;
+2. **`homebrew`**: renders the formula (`packaging/homebrew/render-formula.sh`)
+   with the source SHA-256 and a `bottle do` block for every bottle that was
+   built, and commits `Formula/<name>.rb` here as `github-actions[bot]`.
+
+A failed bottle doesn't block publishing; that platform falls back to a source
+build. To rebuild bottles for an existing release, run the project's `release`
+workflow manually and pass the tag.
 
 **Access.** Each project repo needs a `HOMEBREW_TAP_TOKEN` secret. Use a
 fine-grained token whose resource owner is PalenaAI, limited to this repository,
