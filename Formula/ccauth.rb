@@ -7,16 +7,16 @@
 class Ccauth < Formula
   desc "OAuth2/SSO credential helper for Claude Code and AI gateways"
   homepage "https://github.com/PalenaAI/claude-code-auth-helper"
-  url "https://github.com/PalenaAI/claude-code-auth-helper/archive/refs/tags/v0.2.0.tar.gz"
-  sha256 "3d6502628ca91c6a88bfc4edffb89490f753a88d6adcec05a4582d2fd105a508"
+  url "https://github.com/PalenaAI/claude-code-auth-helper/archive/refs/tags/v1.0.0.tar.gz"
+  sha256 "8de59bdcd691eff7deceae854287ba31fa5bd5296750bb47bd382bd804aa7d31"
   license "Apache-2.0"
   head "https://github.com/PalenaAI/claude-code-auth-helper.git", branch: "main"
 
   bottle do
-    root_url "https://github.com/PalenaAI/claude-code-auth-helper/releases/download/v0.2.0"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "b887a6eb261ede7052ff8cc4442b341b77c577d06edf7a5dd6b0052825ef2c93"
-    sha256 cellar: :any_skip_relocation, arm64_linux:   "d1f46dadf10d693358faaf749407a4f79b8b40926d798b1dac747a3745a674e3"
-    sha256 cellar: :any,                 x86_64_linux:  "aaac719bace9f125a185c3369186e0e894cb6ce22af8a7a8b7a23d608dfb0e3e"
+    root_url "https://github.com/PalenaAI/claude-code-auth-helper/releases/download/v1.0.0"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "fc61cbaa9e97d2ebded88963359d654e68a43e1979416417a99d66be87f56fee"
+    sha256 cellar: :any_skip_relocation, arm64_linux:   "f7336e0bef046ce3b458ebfb0766c9980de15a24e516c56050e334cf2dcaff9d"
+    sha256 cellar: :any,                 x86_64_linux:  "a392f2035d5257f056eb2668e2a77348dcdbf3fd13ab4079fafdd57dd8cb1b06"
   end
 
   depends_on "go" => :build
